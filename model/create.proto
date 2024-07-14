@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option go_package = "github.com/rkritchat/userpb/v1/model";
+
+package model;
+
+import "google/protobuf/timestamp.proto";
+
+message CreateUserReq{
+  string username = 1;
+  string password = 2;
+}
+
+message GetUserReq{
+  string username = 1;
+}
+
+message GetUserResp {
+  string username = 1;
+  string password = 2;
+  google.protobuf.Timestamp createdAt = 3;
+  google.protobuf.Timestamp updatedAt = 4;
+}

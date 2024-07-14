@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option go_package = "github.com/rkritchat/userpb/v1";
+
+package userService;
+
+import "model/create.proto";
+import "model/common.proto";
+
+service UserService{
+  rpc CreateUserService(model.CreateUserReq)returns(model.CommonResp){};
+  rpc GetUserByEmail(model.GetUserReq)returns(model.GetUserResp){};
+}

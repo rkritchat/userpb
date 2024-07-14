@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option go_package = "github.com/rkritchat/userpb/v1/model";
+
+package model;
+
+message CommonResp {
+  bool isSuccess = 1;
+  string message = 2;
+}
