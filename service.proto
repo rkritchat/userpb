@@ -6,8 +6,12 @@ package userService;
 
 import "model/create.proto";
 import "model/common.proto";
+import "model/get.proto";
+import "google/protobuf/empty.proto";
 
 service UserService{
   rpc CreateUserService(model.CreateUserReq)returns(model.CommonResp){};
   rpc GetUserByEmail(model.GetUserReq)returns(model.GetUserResp){};
+  rpc GetListOfUsers(google.protobuf.Empty)returns(model.ListUserResp){};
+  rpc StreamUsers(google.protobuf.Empty)returns(stream model.ListUserResp){};
 }

@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,6 +23,8 @@ const _ = grpc.SupportPackageIsVersion8
 const (
 	UserService_CreateUserService_FullMethodName = "/userService.UserService/CreateUserService"
 	UserService_GetUserByEmail_FullMethodName    = "/userService.UserService/GetUserByEmail"
+	UserService_GetListOfUsers_FullMethodName    = "/userService.UserService/GetListOfUsers"
+	UserService_StreamUsers_FullMethodName       = "/userService.UserService/StreamUsers"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -30,6 +33,8 @@ const (
 type UserServiceClient interface {
 	CreateUserService(ctx context.Context, in *model.CreateUserReq, opts ...grpc.CallOption) (*model.CommonResp, error)
 	GetUserByEmail(ctx context.Context, in *model.GetUserReq, opts ...grpc.CallOption) (*model.GetUserResp, error)
+	GetListOfUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*model.ListUserResp, error)
+	StreamUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (UserService_StreamUsersClient, error)
 }
 
 type userServiceClient struct {
@@ -60,12 +65,57 @@ func (c *userServiceClient) GetUserByEmail(ctx context.Context, in *model.GetUse
 	return out, nil
 }
 
+func (c *userServiceClient) GetListOfUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*model.ListUserResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(model.ListUserResp)
+	err := c.cc.Invoke(ctx, UserService_GetListOfUsers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) StreamUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (UserService_StreamUsersClient, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &UserService_ServiceDesc.Streams[0], UserService_StreamUsers_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &userServiceStreamUsersClient{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type UserService_StreamUsersClient interface {
+	Recv() (*model.ListUserResp, error)
+	grpc.ClientStream
+}
+
+type userServiceStreamUsersClient struct {
+	grpc.ClientStream
+}
+
+func (x *userServiceStreamUsersClient) Recv() (*model.ListUserResp, error) {
+	m := new(model.ListUserResp)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
 	CreateUserService(context.Context, *model.CreateUserReq) (*model.CommonResp, error)
 	GetUserByEmail(context.Context, *model.GetUserReq) (*model.GetUserResp, error)
+	GetListOfUsers(context.Context, *emptypb.Empty) (*model.ListUserResp, error)
+	StreamUsers(*emptypb.Empty, UserService_StreamUsersServer) error
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -78,6 +128,12 @@ func (UnimplementedUserServiceServer) CreateUserService(context.Context, *model.
 }
 func (UnimplementedUserServiceServer) GetUserByEmail(context.Context, *model.GetUserReq) (*model.GetUserResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserByEmail not implemented")
+}
+func (UnimplementedUserServiceServer) GetListOfUsers(context.Context, *emptypb.Empty) (*model.ListUserResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetListOfUsers not implemented")
+}
+func (UnimplementedUserServiceServer) StreamUsers(*emptypb.Empty, UserService_StreamUsersServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamUsers not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -128,6 +184,45 @@ func _UserService_GetUserByEmail_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_GetListOfUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetListOfUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GetListOfUsers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetListOfUsers(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_StreamUsers_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(emptypb.Empty)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(UserServiceServer).StreamUsers(m, &userServiceStreamUsersServer{ServerStream: stream})
+}
+
+type UserService_StreamUsersServer interface {
+	Send(*model.ListUserResp) error
+	grpc.ServerStream
+}
+
+type userServiceStreamUsersServer struct {
+	grpc.ServerStream
+}
+
+func (x *userServiceStreamUsersServer) Send(m *model.ListUserResp) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -143,7 +238,17 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "GetUserByEmail",
 			Handler:    _UserService_GetUserByEmail_Handler,
 		},
+		{
+			MethodName: "GetListOfUsers",
+			Handler:    _UserService_GetListOfUsers_Handler,
+		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "StreamUsers",
+			Handler:       _UserService_StreamUsers_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "service.proto",
 }
