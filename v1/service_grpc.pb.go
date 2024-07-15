@@ -92,7 +92,7 @@ func (c *userServiceClient) StreamUsers(ctx context.Context, in *emptypb.Empty, 
 }
 
 type UserService_StreamUsersClient interface {
-	Recv() (*model.ListUserResp, error)
+	Recv() (*model.User, error)
 	grpc.ClientStream
 }
 
@@ -100,8 +100,8 @@ type userServiceStreamUsersClient struct {
 	grpc.ClientStream
 }
 
-func (x *userServiceStreamUsersClient) Recv() (*model.ListUserResp, error) {
-	m := new(model.ListUserResp)
+func (x *userServiceStreamUsersClient) Recv() (*model.User, error) {
+	m := new(model.User)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -211,7 +211,7 @@ func _UserService_StreamUsers_Handler(srv interface{}, stream grpc.ServerStream)
 }
 
 type UserService_StreamUsersServer interface {
-	Send(*model.ListUserResp) error
+	Send(*model.User) error
 	grpc.ServerStream
 }
 
@@ -219,7 +219,7 @@ type userServiceStreamUsersServer struct {
 	grpc.ServerStream
 }
 
-func (x *userServiceStreamUsersServer) Send(m *model.ListUserResp) error {
+func (x *userServiceStreamUsersServer) Send(m *model.User) error {
 	return x.ServerStream.SendMsg(m)
 }
 
